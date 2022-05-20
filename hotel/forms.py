@@ -25,6 +25,7 @@ class LoginForm(FlaskForm):
     password = PasswordField(label='Password:', validators=[DataRequired()])
 
 class AmenityForm(FlaskForm):
+    id = StringField('ID', validators=[Length(min=0, max=5), DataRequired()])
     type = StringField('Type', validators=[DataRequired()])
     status = StringField('Status', validators=[DataRequired()])
     capacity = StringField('Capacity', validators=[DataRequired()])
@@ -33,6 +34,7 @@ class AmenityForm(FlaskForm):
 
 
 class RoomForm(FlaskForm):
+    id = StringField('ID', validators=[Length(min=3, max=5), DataRequired()])
     number = StringField('Room Number', validators=[DataRequired()])
     type = StringField('Type', validators=[DataRequired()])
     status = StringField('Status', validators=[DataRequired()])
@@ -41,6 +43,8 @@ class RoomForm(FlaskForm):
 class DateForm(FlaskForm):
     dt = DateField('Pick a Date', format="%m/%d/%Y")
 
+class BillForm(FlaskForm):
+    id = StringField('Guest ID', validators=[Length(min=1, max=5), DataRequired()])
 
 class BookingForm(FlaskForm):
     id = StringField('Enter your unique Guest ID')

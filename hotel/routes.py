@@ -1,5 +1,6 @@
+from tokenize import Number
 from hotel import db, app, mysql
-from .forms import AmenityForm, RegisterForm, LoginForm
+from .forms import AmenityForm, RegisterForm, LoginForm, RoomForm
 from flask import flash, redirect, render_template, request, url_for
 from .models import User
 from flask_login import current_user, login_user, logout_user, login_required
@@ -118,10 +119,9 @@ def admin_amenities():
 def add_amenity():
     form = AmenityForm()
 
-    if form.validate_on_submit():
+    if request.method == 'POST':
         print("YES")
-        idd = form.id.data
-        print(idd)
+
         type = form.type.data
         status = form.status.data
         capacity = form.capacity.data
@@ -130,7 +130,7 @@ def add_amenity():
 
         cur = mysql.connection.cursor()
 
-        cur.execute("INSERT INTO amenities(a_id, a_type, a_status, a_capacity, a_title, a_description) VALUES(%s, %s, %s, %s, %s, %s)", (idd, type, status, capacity, title, description))
+        cur.execute("INSERT INTO amenities(a_type, a_status, a_capacity, a_title, a_description) VALUES(%s, %s, %s, %s, %s)", (type, status, capacity, title, description))
 
         mysql.connection.commit()
 
@@ -138,26 +138,175 @@ def add_amenity():
 
         flash('Facility Added Successfully', 'success')
 
-        return redirect(url_for('add_amenity'))
+        return redirect(url_for('admin_amenities'))
     print(form.errors)
     return render_template('add_amenity.html', form=form)
+
+
+@app.route('/edit_amenity/<string:id>', methods=['GET', 'POST'])
+@login_required
+def edit_amenity(id):
+    print("&&&&&FFGTHTRH")
+    cur = mysql.connection.cursor()
+
+    result = cur.execute("SELECT * FROM amenities WHERE a_id=%s", [id])
+    print(result)
+    amenity = cur.fetchone()
+    print(amenity)
+    form = AmenityForm()
+    print(id)
+
+    form.type.data = str(amenity['a_type'])
+    form.status.data = str(amenity['a_status'])
+    form.capacity.data = str(amenity['a_capacity'])
+    form.title.data = str(amenity['a_title'])
+    form.description.data  = amenity['a_description']
+
+    if request.method == 'POST':
+        type = request.form['type']
+        status = request.form['status']
+        capacity = request.form['capacity']
+        title = request.form['title']
+        description  = request.form['description']
+
+        cur = mysql.connection.cursor()
+
+        cur.execute("UPDATE amenities SET a_type=%s, a_status=%s, a_capacity=%s, a_title=%s, a_description=%s WHERE a_id=%s", (type, status, capacity, title, description, id))
+
+        mysql.connection.commit()
+
+        cur.close()
+
+        flash('Facility Updated successfully', 'success')
+
+        return redirect(url_for('admin_amenities'))
+
+    print(form.errors)
+    return render_template('edit_amenity.html', form=form)
+
 
 @app.route('/view_amenity/<string:id>/')
 def view_amenity(id):
     cur = mysql.connection.cursor()
 
     result = cur.execute("SELECT * FROM amenities WHERE a_id = %s", [id])
+    print(result)
 
     amenity = cur.fetchone()
 
     return render_template('view_amenity.html', amenity=amenity)
 
+@app.route('/delete_amenity/<string:id>', methods=['GET', 'POST'])
+@login_required
+def delete_amenity(id):
+    cur=mysql.connection.cursor()
+
+    cur.execute("DELETE FROM amenities WHERE a_id=%s", [id])
+
+    mysql.connection.commit()
+
+    cur.close()
+
+    flash('Facility Deleted', 'success')
+
+    return redirect(url_for('admin_amenities'))
 
 
+@app.route('/admin_rooms')
+@login_required
+def admin_rooms():
+    cur = mysql.connection.cursor()
+
+    result = cur.execute("SELECT * FROM rooms")
+
+    rooms = cur.fetchall()
+
+    if result > 0:
+        return render_template('admin_rooms.html', rooms=rooms)
+    else:
+        flash('No Rooms available!', 'danger')
+        redirect(url_for('add_room'))
+
+    cur.close()
+    return render_template('admin_rooms.html')
+
+@app.route('/add_room', methods=['GET', 'POST'])
+@login_required
+def add_room():
+    form = RoomForm()
+
+    if request.method == 'POST':
+        number = form.number.data
+        type = form.type.data
+        status = form.status.data
+        capacity = form.capacity.data
+
+        cur = mysql.connection.cursor()
+
+        cur.execute("INSERT INTO rooms(r_number, r_type, r_capacity, r_status) VALUES(%s, %s, %s, %s)", (number, type, capacity, status))
+
+        mysql.connection.commit()
+
+        cur.close()
+
+        flash('Room Added Successfully!', 'success')
+
+        return redirect(url_for('admin_rooms'))
+
+    return render_template('add_room.html', form=form)
 
 
+@app.route('/edit_room/<string:id>', methods=['GET', 'POST'])
+@login_required
+def edit_room(id):
+    cur = mysql.connection.cursor()
+
+    result = cur.execute("SELECT * FROM rooms WHERE r_id=%s", [id])
+
+    article = cur.fetchone()
+
+    form = RoomForm()
+
+    form.type.data = article['r_type']
+    form.number.data = article['r_number']
+    form.status.data = article['r_status']
+    form.capacity.data = article['r_capacity']
+
+    if request.method=='POST':
+        type = request.form['type']
+        number = request.form['number']
+        status = request.form['status']
+        capacity = request.form['capacity']
+
+        cur = mysql.connection.cursor()
+
+        cur.execute("UPDATE rooms SET r_type=%s, r_number=%s, r_status=%s, r_capacity=%s WHERE r_id=%s", (type, number, status, capacity, id))
+
+        mysql.connection.commit()
+
+        cur.close()
+
+        flash('Room Updated successfully', 'success')
+
+        return redirect(url_for('admin_rooms'))
+
+    return render_template('edit_room.html', form=form, id=id)
 
 
+@app.route('/delete_room/<string:id>', methods=['GET', 'POST'])
+@login_required
+def delete_room(id):
+    cur=mysql.connection.cursor()
+
+    cur.execute("DELETE FROM rooms WHERE r_id=%s", [id])
+
+    mysql.connection.commit()
+
+    cur.close()
+
+    flash('Facility Deleted', 'success')
+
+    return redirect(url_for('admin_rooms'))
 
 
 

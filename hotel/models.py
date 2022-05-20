@@ -42,11 +42,11 @@ class User(db.Model, UserMixin):
 class Amenity(db.Model):
     __tablename__= "amenities"
     a_id = db.Column(db.Integer(), primary_key=True)
-    a_type = db.Column(db.String(length=30), nullable=False, unique=True)
-    a_status = db.Column(db.String(length=30), nullable=False, unique=True)
-    a_capacity = db.Column(db.String(length=30), nullable=False, unique=True)
+    a_type = db.Column(db.String(length=30), nullable=False)
+    a_status = db.Column(db.String(length=30), nullable=False)
+    a_capacity = db.Column(db.String(length=30), nullable=False)
     a_title = db.Column(db.String(length=30), nullable=False, unique=True)
-    a_description = db.Column(db.String(length=200), nullable=False, unique=True)
+    a_description = db.Column(db.String(length=200), nullable=False)
 
     
 
@@ -54,30 +54,30 @@ class Room(db.Model):
     __tablename__= "rooms"
     r_id = db.Column(db.Integer(), primary_key=True)
     r_number = db.Column(db.String(length=30), nullable=False, unique=True)
-    r_type = db.Column(db.String(length=30), nullable=False, unique=True)
-    r_status = db.Column(db.String(length=30), nullable=False, unique=True)
-    r_capacity = db.Column(db.String(length=30), nullable=False, unique=True)
+    r_type = db.Column(db.String(length=30), nullable=False)
+    r_status = db.Column(db.String(length=30), nullable=False)
+    r_capacity = db.Column(db.String(length=30), nullable=False)
 
     
 
 class Booking(db.Model):
     __tablename__= "bookings"
     b_id = db.Column(db.Integer(), primary_key=True)
-    b_status = db.Column(db.String(length=30), nullable=False, unique=True)
-    st = db.Column(db.String(length=30), nullable=False, unique=True)
-    et = db.Column(db.String(length=30), nullable=False, unique=True)
+    b_status = db.Column(db.String(length=30), nullable=False)
+    st = db.Column(db.String(length=30), nullable=False)
+    et = db.Column(db.String(length=30), nullable=False)
 
 class Guests(db.Model):
     __tablename__= "guests"
     g_id = db.Column(db.Integer(), primary_key=True)
-    g_status = db.Column(db.String(length=30), nullable=False, unique=True)
-    g_name = db.Column(db.String(length=30), nullable=False, unique=True)
-    g_count = db.Column(db.String(length=30), nullable=False, unique=True)
+    g_status = db.Column(db.String(length=30), nullable=False)
+    g_name = db.Column(db.String(length=30), nullable=False)
+    g_count = db.Column(db.String(length=30), nullable=False)
     g_email = db.Column(db.String(length=30), nullable=False, unique=True)
-    g_streetno = db.Column(db.String(length=200), nullable=False, unique=True)
-    g_city = db.Column(db.String(length=200), nullable=False, unique=True)
-    g_state = db.Column(db.String(length=30), nullable=False, unique=True)   
-    g_country = db.Column(db.String(length=200), nullable=False, unique=True)
+    g_streetno = db.Column(db.String(length=200), nullable=False)
+    g_city = db.Column(db.String(length=200), nullable=False)
+    g_state = db.Column(db.String(length=30), nullable=False)   
+    g_country = db.Column(db.String(length=200), nullable=False)
     g_pincode = db.Column(db.String(length=30), nullable=False, unique=True)
 
     
