@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<form action="" method='post'>
+	{{ form.hidden_tag() }}
+    {{ form.dt }}
+	
+	<button class="btn btn-info" type="submit">Book</button>
+</form>
+{% endblock %}

@@ -1,3 +1,4 @@
+from email.utils import format_datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, DateField
 from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError
@@ -41,7 +42,7 @@ class RoomForm(FlaskForm):
     capacity = StringField('Capacity', validators=[DataRequired()])
 
 class DateForm(FlaskForm):
-    dt = DateField('Pick a Date', format="%m/%d/%Y")
+    dt = DateField('Pick a Date', format="%m/%d/%y")
 
 class BillForm(FlaskForm):
     id = StringField('Guest ID', validators=[Length(min=1, max=5), DataRequired()])

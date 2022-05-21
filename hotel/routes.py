@@ -1,6 +1,6 @@
-from tokenize import Number
+from random import random
 from hotel import db, app, mysql
-from .forms import AmenityForm, RegisterForm, LoginForm, RoomForm
+from .forms import AmenityForm, BookingForm, DateForm, RegisterForm, LoginForm, RoomForm
 from flask import flash, redirect, render_template, request, url_for
 from .models import User
 from flask_login import current_user, login_user, logout_user, login_required
@@ -307,6 +307,60 @@ def delete_room(id):
     flash('Facility Deleted', 'success')
 
     return redirect(url_for('admin_rooms'))
+
+
+# admin guests
+@app.route('/admin_guests')
+@login_required
+def admin_guests():
+    
+    cur = mysql.connection.cursor()
+
+    result = cur.execute("SELECT * FROM guests")
+
+    guests = cur.fetchall()
+
+    if result > 0:
+        return render_template('guests.html', guests=guests)
+    else:
+        msg = 'No guests in the Hotel currently'
+        return render_template('guests.html', msg=msg)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# date
+@app.route('/date', methods=['post','get'])
+def date():
+    form = DateForm()
+    if form.validate_on_submit():
+        print(form.dt.data)
+        return form.dt.data.strftime('%Y-%m-%d')
+    return render_template('example.html', form=form)
+
+
+
+
+
+
+
+
+
 
 
 
