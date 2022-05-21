@@ -1,6 +1,6 @@
-from random import random
+import random
 from hotel import db, app, mysql
-from .forms import AmenityForm, BookingForm, DateForm, RegisterForm, LoginForm, RoomForm
+from .forms import AmenityForm, BillForm, BookingForm, DateForm, RegisterForm, LoginForm, RoomForm
 from flask import flash, redirect, render_template, request, url_for
 from .models import User
 from flask_login import current_user, login_user, logout_user, login_required
@@ -355,10 +355,104 @@ def date():
 
 
 
+# bookings
+@app.route('/bookings/<string:id>', methods=['GET', 'POST'])
+def bookings(id):
+    global g_id, b_id
+    b_id = random.randint(1001, 10000)
+
+    cur = mysql.connection.cursor()
+    
+    if id[0] == 'R':
+        result = cur.execute("SELECT * FROM rooms WHERE r_id=%s", [id])
+    else:
+        result = cur.execute("SELECT * FROM amenities WHERE a_id=%s", [id])
+    
+    amenity = cur.fetchone()
+
+    if id[0] == 'R' and amenity['r_status'] == 1:
+        return redirect(url_for('rooms'))
+
+    if id[0] != 'R' and amenity['a_status'] == 1:
+        return redirect(url_for('amenities'))
+
+    form = BookingForm()
+    print("HERE2")
+    if request.method=='POST':
+        print("HERE0")
+        check_in = form.check_in.data.strftime('%Y-%m-%d')
+        print(check_in)
+        if id[0] == 'R':
+            g_id = random.randint(1, 1000)
+
+            result = cur.execute("SELECT r_type FROM rooms WHERE r_id=%s",[id])
+            result = cur.fetchone()
+            f_type = result['r_type']
+
+            result = cur.execute("SELECT cost FROM charges WHERE code = 1 AND type=%s",[f_type])
+            result = cur.fetchone()
+            f_cost = result['cost']
+
+            print(f_type, f_cost)
+            
+            check_out = form.check_out.data
+        else:
+            g_id = form.g_id.data
+            
+            result = cur.execute("SELECT a_type FROM amenities WHERE a_id=%s",[id])
+            result = cur.fetchone()
+            f_type = result['a_type']
+
+            result = cur.execute("SELECT cost FROM charges WHERE code = 0 AND type=%s",[f_type])
+            result = cur.fetchone()
+            f_cost = result['cost']
+
+            print(f_type, f_cost)
+            
+            check_out = check_in
+
+        status = 1
+        name = form.name.data
+        count = form.count.data
+        email = form.email.data
+        streetno = form.streetno.data
+        city = form.city.data
+        state = form.state.data    
+        country = form.country.data
+        pincode = form.pincode.data
+
+        print("hello "+check_in)
+
+
+        if id[0] == 'R':
+            cur.execute("INSERT INTO bookings(b_id, r_id, g_id, b_status, a_id, st, et, f_type, f_cost) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)", (b_id, id, g_id, status, '0', check_in, check_out, f_type, f_cost))
+            cur.execute("INSERT INTO guests(g_id, g_name, g_email, g_count, g_streetno, g_city, g_state, g_country, g_pincode) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)",(g_id, name, email, count, streetno, city, state, country, pincode))
+        else:
+            cur.execute("INSERT INTO bookings(b_id, r_id, g_id, b_status, a_id, st, et, f_type, f_cost) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)", (b_id, '0', g_id, status, id, check_in, check_out, f_type, f_cost))
+        
+        mysql.connection.commit()
+
+        cur.close()
+
+        flash('Successfully Booked!', 'success')
+
+        return redirect(url_for('bookings', id=id))
+
+    return render_template('bookings.html', amenity=amenity, id=id, form=form)  
 
 
 
 
+@app.route('/billings', methods=['GET', 'POST'])
+@login_required
+def billings():
+    form = BillForm()
+
+    if request.method == 'POST':
+        id = form.id.data
+        print(id)
+        return redirect(url_for('generate_bill', id=id))
+    return render_template('billings.html', form=form)
 
 
 

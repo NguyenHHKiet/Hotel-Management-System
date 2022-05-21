@@ -20,7 +20,7 @@
 			<td>{{room.r_status}}</td>
 			<td>{{room.r_capacity}}</td>
 
-			{% if room.r_status == 0 %}
+			{% if room.r_status == "0" %}
 			<td><a href="bookings/{{room.r_id}}" class="btn btn-success" method="POST">    Book     </a></td>
 			{% else %}
 			<td><a href="#" class="btn btn-danger">Not Available</a></td>
