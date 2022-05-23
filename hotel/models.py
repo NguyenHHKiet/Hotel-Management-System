@@ -53,8 +53,9 @@ class Amenity(db.Model):
 class Room(db.Model):
     __tablename__= "rooms"
     r_id = db.Column(db.Integer(), primary_key=True)
+    type_id = db.Column(db.Integer(), nullable=False)
     r_number = db.Column(db.String(length=30), nullable=False, unique=True)
-    r_type = db.Column(db.String(length=30), nullable=False)
+    r_price = db.Column(db.String(length=30), nullable=False)
     r_status = db.Column(db.String(length=30), nullable=False)
     r_capacity = db.Column(db.String(length=30), nullable=False)
 
@@ -87,3 +88,53 @@ class Charges(db.Model):
     code = db.Column(db.Integer(), primary_key=True)
     type = db.Column(db.Integer(), primary_key=True)
     cost = db.Column(db.Integer(), nullable=False, unique=True)
+
+
+class Job(db.Model):
+    __tablename__= "job"
+    job_id = db.Column(db.Integer(), primary_key=True)
+    job_title = db.Column(db.String(length=200), nullable=False)
+    salary = db.Column(db.Integer(), nullable=False)
+
+
+class Employee(db.Model):
+    __tablename__= "employees"
+    emp_id = db.Column(db.Integer(), primary_key=True)
+    job_id = db.Column(db.Integer(), nullable=False)
+    emp_name = db.Column(db.String(length=30), nullable=False)
+    emp_email = db.Column(db.String(length=30), nullable=False, unique=True)
+    emp_streetno = db.Column(db.String(length=200), nullable=False)
+    emp_city = db.Column(db.String(length=200), nullable=False)
+    emp_country = db.Column(db.String(length=200), nullable=False)
+    emp_phone = db.Column(db.String(length=200), nullable=False)
+
+
+class Transaction(db.Model):
+    __tablename__= "transactions"
+    transaction_id = db.Column(db.Integer(), primary_key=True)
+    emp_id = db.Column(db.Integer(), nullable=False)
+    job_id = db.Column(db.Integer(), nullable=False)
+    res_id = db.Column(db.Integer(), nullable=False)
+    dated = db.Column(db.DateTime())
+    amount = db.Column(db.String(length=30), nullable=False)
+    payment_mode = db.Column(db.String(length=200), nullable=False)
+    type = db.Column(db.String(length=200), nullable=False)
+    status = db.Column(db.String(length=200), nullable=False)
+
+
+class Type(db.Model):
+    __tablename__= "rooms_type"
+    type_id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(length=200), nullable=False)
+    capacity = db.Column(db.String(length=30), nullable=False)
+
+
+class Reservation(db.Model):
+    __tablename__= "reservation"
+    res_id = db.Column(db.Integer(), primary_key=True)
+    g_id = db.Column(db.Integer(), nullable=False)
+    r_id = db.Column(db.Integer(), nullable=False)
+    transaction_id = db.Column(db.Integer(), nullable=False)
+    in_date = db.Column(db.DateTime())
+    out_date = db.Column(db.DateTime())
+    days = db.Column(db.Integer())
