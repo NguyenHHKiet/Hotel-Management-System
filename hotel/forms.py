@@ -47,13 +47,10 @@ class DateForm(FlaskForm):
 class BillForm(FlaskForm):
     id = StringField('Guest ID', validators=[Length(min=1, max=5), DataRequired()])
 
-class BookingForm(FlaskForm):
-    g_id = StringField('Enter your unique Guest ID')
-    check_in = DateField('Pick a Date', format="%m/%d/%Y")
-    check_out = DateField('Pick a Date', format="%m/%d/%Y")
+class GuestsForm(FlaskForm):
     status = StringField('Status')
     name = StringField('Name', validators=[DataRequired()])
-    count = StringField('No of adults', validators=[DataRequired()])
+    count = StringField('Count of occupants', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired()])
     streetno = TextAreaField('Street Address', validators=[DataRequired()])
     city = StringField('City', validators=[DataRequired()])

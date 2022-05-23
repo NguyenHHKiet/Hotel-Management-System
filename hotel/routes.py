@@ -1,6 +1,5 @@
-import random
 from hotel import db, app, mysql
-from .forms import AmenityForm, BillForm, BookingForm, DateForm, RegisterForm, LoginForm, RoomForm
+from .forms import AmenityForm, GuestsForm, RegisterForm, LoginForm, RoomForm
 from flask import flash, redirect, render_template, request, url_for
 from .models import User
 from flask_login import current_user, login_user, logout_user, login_required
@@ -327,132 +326,118 @@ def admin_guests():
         return render_template('guests.html', msg=msg)
 
 
+@app.route('/add_guests', methods=['GET', 'POST'])
+@login_required
+def add_guests():
+    form = GuestsForm()
 
+    if request.method == 'POST':
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# date
-@app.route('/date', methods=['post','get'])
-def date():
-    form = DateForm()
-    if form.validate_on_submit():
-        print(form.dt.data)
-        return form.dt.data.strftime('%Y-%m-%d')
-    return render_template('example.html', form=form)
-
-
-
-# bookings
-@app.route('/bookings/<string:id>', methods=['GET', 'POST'])
-def bookings(id):
-    global g_id, b_id
-    b_id = random.randint(1001, 10000)
-
-    cur = mysql.connection.cursor()
-    
-    if id[0] == 'R':
-        result = cur.execute("SELECT * FROM rooms WHERE r_id=%s", [id])
-    else:
-        result = cur.execute("SELECT * FROM amenities WHERE a_id=%s", [id])
-    
-    amenity = cur.fetchone()
-
-    if id[0] == 'R' and amenity['r_status'] == 1:
-        return redirect(url_for('rooms'))
-
-    if id[0] != 'R' and amenity['a_status'] == 1:
-        return redirect(url_for('amenities'))
-
-    form = BookingForm()
-    print("HERE2")
-    if request.method=='POST':
-        print("HERE0")
-        check_in = form.check_in.data.strftime('%Y-%m-%d')
-        print(check_in)
-        if id[0] == 'R':
-            g_id = random.randint(1, 1000)
-
-            result = cur.execute("SELECT r_type FROM rooms WHERE r_id=%s",[id])
-            result = cur.fetchone()
-            f_type = result['r_type']
-
-            result = cur.execute("SELECT cost FROM charges WHERE code = 1 AND type=%s",[f_type])
-            result = cur.fetchone()
-            f_cost = result['cost']
-
-            print(f_type, f_cost)
-            
-            check_out = form.check_out.data
-        else:
-            g_id = form.g_id.data
-            
-            result = cur.execute("SELECT a_type FROM amenities WHERE a_id=%s",[id])
-            result = cur.fetchone()
-            f_type = result['a_type']
-
-            result = cur.execute("SELECT cost FROM charges WHERE code = 0 AND type=%s",[f_type])
-            result = cur.fetchone()
-            f_cost = result['cost']
-
-            print(f_type, f_cost)
-            
-            check_out = check_in
-
-        status = 1
+        status = form.status.data
         name = form.name.data
         count = form.count.data
-        email = form.email.data
+        email = form.email.data 
         streetno = form.streetno.data
         city = form.city.data
-        state = form.state.data    
+        state = form.state.data
         country = form.country.data
         pincode = form.pincode.data
 
-        print("hello "+check_in)
+        cur = mysql.connection.cursor()
 
+        cur.execute("INSERT INTO guests(g_status, g_name, g_count, g_email, g_streetno, g_city, g_state, g_country, g_pincode) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)", (status, name, count, email, streetno, city, state, country ,pincode))
 
-        if id[0] == 'R':
-            cur.execute("INSERT INTO bookings(b_id, r_id, g_id, b_status, a_id, st, et, f_type, f_cost) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)", (b_id, id, g_id, status, '0', check_in, check_out, f_type, f_cost))
-            cur.execute("INSERT INTO guests(g_id, g_name, g_email, g_count, g_streetno, g_city, g_state, g_country, g_pincode) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)",(g_id, name, email, count, streetno, city, state, country, pincode))
-        else:
-            cur.execute("INSERT INTO bookings(b_id, r_id, g_id, b_status, a_id, st, et, f_type, f_cost) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)", (b_id, '0', g_id, status, id, check_in, check_out, f_type, f_cost))
-        
         mysql.connection.commit()
 
         cur.close()
 
-        flash('Successfully Booked!', 'success')
+        flash('Guests Added Successfully!', 'success')
 
-        return redirect(url_for('bookings', id=id))
+        return redirect(url_for('admin_guests'))
 
-    return render_template('bookings.html', amenity=amenity, id=id, form=form)  
-
-
+    return render_template('add_guests.html', form=form)
 
 
-@app.route('/billings', methods=['GET', 'POST'])
+@app.route('/edit_guests/<string:id>', methods=['GET', 'POST'])
 @login_required
-def billings():
-    form = BillForm()
+def edit_guests(id):
+    cur = mysql.connection.cursor()
 
-    if request.method == 'POST':
-        id = form.id.data
-        print(id)
-        return redirect(url_for('generate_bill', id=id))
-    return render_template('billings.html', form=form)
+    result = cur.execute("SELECT * FROM guests WHERE g_id=%s", [id])
+
+    article = cur.fetchone()
+
+    form = GuestsForm()
+
+    form.status.data = article['g_status']
+    form.name.data = article['g_name']
+    form.count.data = article['g_count']
+    form.email.data = article['g_email']
+    form.streetno.data = article['g_streetno']
+    form.city.data = article['g_city']
+    form.state.data = article['g_state']
+    form.country.data = article['g_country']
+
+    if request.method=='POST':
+
+        status = request.form['status']
+        name = request.form['name']
+        count = request.form['count']
+        email = request.form['email']
+        streetno = request.form['streetno']
+        city= request.form['city']
+        state = request.form['state']
+        country = request.form['country']
+
+        cur = mysql.connection.cursor()
+
+        cur.execute("UPDATE guests SET g_status=%s, g_name=%s, g_count=%s, g_email=%s, g_streetno=%s, g_city=%s, g_state=%s, g_country=%s WHERE g_id=%s", (status, name, count, email, streetno, city, state, country, id))
+
+        mysql.connection.commit()
+
+        cur.close()
+
+        flash('Guests Updated successfully', 'success')
+
+        return redirect(url_for('admin_guests'))
+
+    return render_template('edit_guests.html', form=form, id=id)
+
+
+@app.route('/delete_guests/<string:id>', methods=['GET', 'POST'])
+@login_required
+def delete_guests(id):
+    cur=mysql.connection.cursor()
+
+    cur.execute("DELETE FROM guests WHERE g_id=%s", [id])
+
+    mysql.connection.commit()
+
+    cur.close()
+
+    flash('Deleted', 'success')
+
+    return redirect(url_for('admin_guests'))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

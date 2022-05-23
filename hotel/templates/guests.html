@@ -2,6 +2,11 @@
 
 {% block body %}
 	<h1>Guests in the Hotel </h1>
+
+	<a class="btn btn-success" href="/add_guests">Add a Guests</a>
+
+	<hr>
+
 	<table class="table table-striped">
 		<tr>
 			<th>ID</th>
@@ -14,9 +19,10 @@
 			<th>Country</th>
 			<th>Pincode</th>
 			<th></th>
+			<th></th>
 		</tr>
 		
-		{% for guest in guests %}
+		{% for guest in guests %} 
 		<tr>
 			<td style ="word-break:break-all;"><font size="2">{{guest.g_id}}</td>
 			<td style ="word-break:break-all;"><font size="1">{{guest.g_name}}</td>
@@ -28,8 +34,8 @@
 			<td style ="word-break:break-all;"><font size="1">{{guest.g_country}}</td>
 			<td style ="word-break:break-all;"><font size="1">{{guest.g_pincode}}</td>
 
-			<td style ="word-break:break-all;"><font size="1"><a href="view_bookings/{{guest.g_id}}" class="btn btn-success" method="POST">    View Bookings     </a></td>
-
+			<td><a href="edit_guests/{{guest.g_id}}" class="btn btn-primary pull-right">Edit</a></td>
+			<td><a href="delete_guests/{{guest.g_id}}" class="btn btn-danger">Delete</a></td>
 		</tr>
 		{% endfor %}
 	</table>
